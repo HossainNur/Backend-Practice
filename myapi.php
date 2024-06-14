@@ -15,7 +15,8 @@ switch ($method) {
     break;
 
     case 'PUT':
-    echo '{"result": "put received"}';
+        $data = json_decode(file_get_contents('php://input'), true);  
+        hanadlePutRquest($data);
     break;
 
     case 'DELETE':
@@ -82,6 +83,23 @@ function handleDeleteRequest($data){
 
   }
 
+
+  function hanadlePutRquest($data){
+    include "db.php";
+
+    $id = $data["id"];
+    $name = $data["name"];
+    
+
+    $sql = "UPDATE demo_api SET name = '$name', phone = '$phone',  exe_time = NOW() WHERE id = '$id'";
+
+    if (mysqli_query($conn, $sql) or die()) {
+        echo '{"result": "Success"}';
+    } else {
+        echo '{"result": "Sql error"}';
+    }
+
+  }
   
 
 ?>
