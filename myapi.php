@@ -9,7 +9,9 @@ switch ($method) {
     break;
 
     case 'POST':
-    echo '{"result": "post received"}';
+        $data = json_decode(file_get_contents('php://input'), true);  
+        handlePostRequest($data);
+    
     break;
 
     case 'PUT':
@@ -17,7 +19,8 @@ switch ($method) {
     break;
 
     case 'DELETE':
-    echo '{"result": "delete received"}';
+        $data = json_decode(file_get_contents('php://input'), true);  // true means you can convert data to array
+        handleDeleteRequest($data);
     break;
 
     default:
@@ -32,16 +35,53 @@ function handleGetRequest(){
 
     $result = mysqli_query($conn, $sql);
 
-if (mysqli_num_rows($result) > 0) {
-  // output data of each row
-  $rows = array();
-  while($row = mysqli_fetch_assoc($result)) {
-    $rows["result"][] = $row;
+    if (mysqli_num_rows($result) > 0) {
+        // output data of each row
+      $rows = array();
+       while($r = mysqli_fetch_assoc($result)) {
+          $rows["result"][] = $r; // with result object
+        //  $rows[] = $r; // only array
+       }
+      echo json_encode($rows);
+
+    } else {
+        echo '{"result": "No data found"}';
+    }
+}
+
+function handlePostRequest($data){
+    include "db.php";
+
+    $name = $data["name"];
+    $phone = $data["phone"];
+
+
+    $sql = "INSERT INTO demo_api(name, phone, exe_time) VALUES('$name', '$phone', NOW())";
+
+    if (mysqli_query($conn, $sql)) {
+        echo '{"result": "Success"}';
+    } else {
+        echo '{"result": "Sql error"}';
+    
+    }
+}
+
+function handleDeleteRequest($data){
+
+    include "db.php";
+
+    $id = $data["id"];
+
+    $sql = "DELETE FROM demo_api WHERE id = $id";
+
+    if (mysqli_query($conn, $sql)) {
+        echo '{"result": "Success"}';
+    } else {
+        echo '{"result": "Sql error"}';
+    }
+
   }
-  echo json_decode($rows);
-}
-else {
-  echo '{"result": "No data found"}';
-}
-}
+
+  
+
 ?>
