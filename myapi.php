@@ -5,7 +5,7 @@ $method = $_SERVER['REQUEST_METHOD'];
 
 switch ($method) {
     case 'GET':
-    echo '{"result": "get received"}';
+    handleGetRequest();
     break;
 
     case 'POST':
@@ -25,4 +25,23 @@ switch ($method) {
     break;
 }
 
+function handleGetRequest(){
+    include "db.php";
+
+    $sql = "SELECT * FROM demo_api";
+
+    $result = mysqli_query($conn, $sql);
+
+if (mysqli_num_rows($result) > 0) {
+  // output data of each row
+  $rows = array();
+  while($row = mysqli_fetch_assoc($result)) {
+    $rows["result"][] = $row;
+  }
+  echo json_decode($rows);
+}
+else {
+  echo '{"result": "No data found"}';
+}
+}
 ?>
